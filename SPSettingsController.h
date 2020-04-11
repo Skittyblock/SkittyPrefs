@@ -4,6 +4,14 @@
 #import <UserNotifications/UserNotifications.h>
 #import "SPHeaderView.h"
 
+@interface UIStatusBar : NSObject
+@property (nonatomic, assign) UIColor *foregroundColor;
+@end
+
+@interface UIApplication (Private)
+@property (nonatomic, retain) UIStatusBar *statusBar;
+@end
+
 @interface SPSettingsController : PSListController <UIScrollViewDelegate, UNUserNotificationCenterDelegate>
 
 @property (nonatomic, retain) NSMutableDictionary *settings;

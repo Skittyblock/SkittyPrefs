@@ -91,7 +91,7 @@
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)width {
-    return 192;
+	return 192;
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

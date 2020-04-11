@@ -31,50 +31,58 @@
 
 	// Icon on navbar
 	UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 29, 29)];
-    self.iconView = [[UIImageView alloc] initWithFrame:titleView.bounds];
+	self.iconView = [[UIImageView alloc] initWithFrame:titleView.bounds];
 	self.iconView.image = [UIImage imageWithContentsOfFile:[[self resourceBundle] pathForResource:@"icon" ofType:@"png"]];
-    self.iconView.alpha = 0;
+	self.iconView.alpha = 0;
 	[titleView addSubview:self.iconView];
 
-    self.navigationItem.titleView = titleView;
+	self.navigationItem.titleView = titleView;
 
 	// Create header view
-    self.headerView = [[SPHeaderView alloc] initWithSettings:[self.settings copy]];
-    self.headerView.layer.zPosition = 1000;
-    [self.view addSubview:self.headerView];
+	self.headerView = [[SPHeaderView alloc] initWithSettings:[self.settings copy]];
+	self.headerView.layer.zPosition = 1000;
+	[self.view addSubview:self.headerView];
 
 	// Update offset for header
 	UITableView *tableView = [self valueForKey:@"_table"];
-    CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
+	CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
 	[tableView setContentOffset:CGPointMake(0, -contentHeight) animated: NO];
 
 	self.navbarThemed = YES;
-    self.iconView.alpha = 0;
+	self.iconView.alpha = 0;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
+	[super viewWillAppear:animated];
 	self.navbarThemed = YES;
-    self.iconView.alpha = 0;
+	self.iconView.alpha = 0;
+
+	if ([UIStatusBar instancesRespondToSelector:@selector(setForegroundColor:)]) {
+		[UIApplication sharedApplication].statusBar.foregroundColor = [UIColor whiteColor];
+	}
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
 	self.navbarThemed = NO;
+
+	if ([UIStatusBar instancesRespondToSelector:@selector(setForegroundColor:)]) {
+		[UIApplication sharedApplication].statusBar.foregroundColor = nil;
+	}
 }
 
 // Set global tint color
 - (void)setThemeColor:(UIColor *)color {
 	_themeColor = color;
 	
-    UIWindow *keyWindow = nil;
-    NSArray *windows = [[UIApplication sharedApplication] windows];
-    for (UIWindow *window in windows) {
-        if (window.isKeyWindow) {
-            keyWindow = window;
-            break;
-        }
-    }
+	UIWindow *keyWindow = nil;
+	NSArray *windows = [[UIApplication sharedApplication] windows];
+	for (UIWindow *window in windows) {
+		if (window.isKeyWindow) {
+			keyWindow = window;
+			break;
+		}
+	}
 
 	self.view.tintColor = color;
 	keyWindow.tintColor = color;
@@ -138,24 +146,24 @@
 - (void)layoutHeader {
 	UITableView *tableView = [self valueForKey:@"_table"];
 
-    CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
+	CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
 
-    CGFloat yPos = fmin(0, -tableView.contentOffset.y);
-    CGFloat elasticHeight = -tableView.contentOffset.y - contentHeight;
+	CGFloat yPos = fmin(0, -tableView.contentOffset.y);
+	CGFloat elasticHeight = -tableView.contentOffset.y - contentHeight;
 
 	if (elasticHeight < 0) {
 		yPos += elasticHeight;
 		elasticHeight = 0;
 	}
 
-    self.headerView.frame = CGRectMake(0, yPos, self.view.bounds.size.width, contentHeight + elasticHeight);
-    self.headerView.elasticHeight = elasticHeight;
-    tableView.contentInset = UIEdgeInsetsMake(contentHeight, 0, 0, 0);
+	self.headerView.frame = CGRectMake(0, yPos, self.view.bounds.size.width, contentHeight + elasticHeight);
+	self.headerView.elasticHeight = elasticHeight;
+	tableView.contentInset = UIEdgeInsetsMake(contentHeight, 0, 0, 0);
 
 	if (@available(iOS 13.0, *)) {
 		tableView.automaticallyAdjustsScrollIndicatorInsets = NO;
 	}
-    tableView.scrollIndicatorInsets = UIEdgeInsetsMake(contentHeight + elasticHeight, 0, 0, 0);
+	tableView.scrollIndicatorInsets = UIEdgeInsetsMake(contentHeight + elasticHeight, 0, 0, 0);
 
 	// Show header icon
 	CGFloat start = -60;
@@ -163,14 +171,14 @@
 	if (tableView.contentOffset.y < start) {
 		self.iconView.alpha = 0;
 	} else if (tableView.contentOffset.y > start && tableView.contentOffset.y < length + start) {
-    	self.iconView.alpha = (tableView.contentOffset.y - start) / length;
+		self.iconView.alpha = (tableView.contentOffset.y - start) / length;
 	} else if (tableView.contentOffset.y >= length + start) {
 		self.iconView.alpha = 1;
 	}
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    [self layoutHeader];
+	[self layoutHeader];
 }
 
 // Bundle for fetching resources

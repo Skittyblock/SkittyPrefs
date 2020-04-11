@@ -7,9 +7,9 @@
 + (id)colorFromHex:(NSString *)hexString {
 	unsigned int rgbValue = 0;
 
-    NSScanner *scanner = [NSScanner scannerWithString:hexString];
-    [scanner setScanLocation:[hexString hasPrefix:@"#"] ? 1 : 0];
-    [scanner scanHexInt:&rgbValue];
+	NSScanner *scanner = [NSScanner scannerWithString:hexString];
+	[scanner setScanLocation:[hexString hasPrefix:@"#"] ? 1 : 0];
+	[scanner scanHexInt:&rgbValue];
 
 	NSString *newString = [hexString substringFromIndex:[hexString hasPrefix:@"#"] ? 1 : 0];
 
@@ -47,7 +47,7 @@
 			break;
 	}
 
-    return [UIColor colorWithRed:r green:g blue:b alpha:a];
+	return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
 @end
