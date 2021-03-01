@@ -46,7 +46,7 @@
 		} else {
 			self.subtitleLabel.font = [UIFont systemFontOfSize:[settings[@"subtitleFontSize"] floatValue] ?: 28];
 		}
-		self.subtitleLabel.textColor = settings[@"textColor"] ?: [UIColor whiteColor];
+		self.subtitleLabel.textColor = self.settings[@"subtitleTextColor"] ?: (self.settings[@"textColor"] ?: [UIColor whiteColor]);
 		[self.contentView addSubview:self.subtitleLabel];
 
 		if (@available(iOS 13.0, *)) {
@@ -54,17 +54,17 @@
 				if (self.settings[@"darkHeaderColor"]) self.backgroundColor = self.settings[@"darkHeaderColor"];
 				if (self.settings[@"darkTextColor"]) {
 					self.titleLabel.textColor = self.settings[@"darkTextColor"];
-					self.subtitleLabel.textColor = self.settings[@"darkTextColor"];
+					self.subtitleLabel.textColor = self.settings[@"subtitleTextColor"] ?: self.settings[@"darkTextColor"];
 				}
 			} else {
 				self.backgroundColor = self.settings[@"headerColor"] ?: self.settings[@"tintColor"];
 				self.titleLabel.textColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
-				self.subtitleLabel.textColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
+				self.subtitleLabel.textColor = self.settings[@"subtitleTextColor"] ?: (self.settings[@"textColor"] ?: [UIColor whiteColor]);
 			}
 		} else {
 			self.backgroundColor = self.settings[@"headerColor"] ?: self.settings[@"tintColor"];
 			self.titleLabel.textColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
-			self.subtitleLabel.textColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
+			self.subtitleLabel.textColor = self.settings[@"subtitleTextColor"] ?: (self.settings[@"textColor"] ?: [UIColor whiteColor]);
 		}
 	}
 
@@ -83,7 +83,7 @@
 
 	CGFloat offset = statusBarHeight + [self _viewControllerForAncestor].navigationController.navigationController.navigationBar.frame.size.height;
 
-	self.contentView.frame = CGRectMake(self.contentView.frame.origin.x, (frame.size.height - offset)/2 - self.contentView.frame.size.height/2 + offset - 10, frame.size.width, self.contentView.frame.size.height);
+	self.contentView.frame = CGRectMake(self.contentView.frame.origin.x, (frame.size.height - offset)/2 - self.contentView.frame.size.height/2 + offset - 20, frame.size.width, self.contentView.frame.size.height);
 
 	self.titleLabel.frame = CGRectMake(self.titleLabel.frame.origin.x, self.titleLabel.frame.origin.y, frame.size.width, self.titleLabel.frame.size.height);
 
@@ -100,12 +100,12 @@
 			if (self.settings[@"darkHeaderColor"]) self.backgroundColor = self.settings[@"darkHeaderColor"];
 			if (self.settings[@"darkTextColor"]) {
 				self.titleLabel.textColor = self.settings[@"darkTextColor"];
-				self.subtitleLabel.textColor = self.settings[@"darkTextColor"];
+				self.subtitleLabel.textColor = self.settings[@"subtitleTextColor"] ?: self.settings[@"darkTextColor"];
 			}
 		} else {
 			self.backgroundColor = self.settings[@"headerColor"] ?: self.settings[@"tintColor"];
 			self.titleLabel.textColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
-			self.subtitleLabel.textColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
+			self.subtitleLabel.textColor = self.settings[@"subtitleTextColor"] ?: (self.settings[@"textColor"] ?: [UIColor whiteColor]);
 		}
 	}
 }

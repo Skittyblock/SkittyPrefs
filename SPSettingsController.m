@@ -18,6 +18,7 @@
 	// Load tint colors
 	if (self.settings[@"tintColor"]) self.settings[@"tintColor"] = [UIColor colorFromHex:self.settings[@"tintColor"]];
 	if (self.settings[@"textColor"]) self.settings[@"textColor"] = [UIColor colorFromHex:self.settings[@"textColor"]];
+	if (self.settings[@"subtitleTextColor"]) self.settings[@"subtitleTextColor"] = [UIColor colorFromHex:self.settings[@"subtitleTextColor"]];
 	if (self.settings[@"darkTextColor"]) self.settings[@"darkTextColor"] = [UIColor colorFromHex:self.settings[@"darkTextColor"]];
 	if (self.settings[@"headerColor"]) self.settings[@"headerColor"] = [UIColor colorFromHex:self.settings[@"headerColor"]];
 	if (self.settings[@"darkHeaderColor"]) self.settings[@"darkHeaderColor"] = [UIColor colorFromHex:self.settings[@"darkHeaderColor"]];
@@ -148,8 +149,8 @@
 
 	CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
 
-	CGFloat yPos = fmin(0, -tableView.contentOffset.y);
-	CGFloat elasticHeight = -tableView.contentOffset.y - contentHeight;
+	CGFloat yPos = fmin(0, -tableView.contentOffset.y - 20) + 20;
+	CGFloat elasticHeight = -tableView.contentOffset.y - contentHeight - 20;
 
 	if (elasticHeight < 0) {
 		yPos += elasticHeight;
@@ -163,7 +164,7 @@
 	if (@available(iOS 13.0, *)) {
 		tableView.automaticallyAdjustsScrollIndicatorInsets = NO;
 	}
-	tableView.scrollIndicatorInsets = UIEdgeInsetsMake(contentHeight + elasticHeight, 0, 0, 0);
+	tableView.scrollIndicatorInsets = UIEdgeInsetsMake(contentHeight + elasticHeight + 20, 0, 0, 0);
 
 	// Show header icon
 	CGFloat start = -60;
