@@ -1,5 +1,6 @@
 // SPSettingsController.h
 
+#import <UIKit/UIKit.h>
 #import <Preferences/PSListController.h>
 #import <UserNotifications/UserNotifications.h>
 #import "SPHeaderView.h"

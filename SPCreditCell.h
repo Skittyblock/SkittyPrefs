@@ -1,5 +1,6 @@
 // SPCreditCell.h
 
+#import <UIKit/UIKit.h>
 #import <Preferences/PSTableCell.h>
 #import <Preferences/PSSpecifier.h>
 

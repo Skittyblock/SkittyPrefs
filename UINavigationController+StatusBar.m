@@ -1,6 +1,8 @@
 // UINavigationController+StatusBar.m
 // Make preferredStatusBarStyle work on view controllers
 
+#import <UIKit/UIKit.h>
+
 @implementation UINavigationController (StatusBar)
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
