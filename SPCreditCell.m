@@ -73,7 +73,6 @@
 - (void)fetchImage {
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		NSString *url = self.specifier.properties[@"imageURL"] ?: @"";
-		if (self.twitterUsername) url = [@"https://cdn.znth.cc/twitter/" stringByAppendingString:self.twitterUsername];
 
 		NSURLSession *session = [NSURLSession sharedSession];
 		[[session dataTaskWithURL:[NSURL URLWithString:url] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {

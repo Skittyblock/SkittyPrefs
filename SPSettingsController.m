@@ -1,8 +1,8 @@
 // SPSettingsController.m
 
+#import <Preferences/PSSpecifier.h>
 #import "SPSettingsController.h"
 #import "UIColor+Hex.h"
-#import <Preferences/PSSpecifier.h>
 
 @implementation SPSettingsController
 
@@ -33,7 +33,13 @@
 	// Icon on navbar
 	UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 29, 29)];
 	self.iconView = [[UIImageView alloc] initWithFrame:titleView.bounds];
-	self.iconView.image = [UIImage imageWithContentsOfFile:[[self resourceBundle] pathForResource:@"icon" ofType:@"png"]];
+	NSString *logoPath = [[self resourceBundle] pathForResource:@"logo" ofType:@"png"];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:logoPath]) {
+		self.iconView.image = [UIImage imageWithContentsOfFile:logoPath];
+		self.iconView.transform = CGAffineTransformMakeScale(0.8, 0.8);
+	} else {
+		self.iconView.image = [UIImage imageWithContentsOfFile:[[self resourceBundle] pathForResource:@"icon" ofType:@"png"]];
+	}
 	self.iconView.alpha = 0;
 	[titleView addSubview:self.iconView];
 
@@ -66,6 +72,7 @@
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
 	self.navbarThemed = NO;
+	self.themeColor = nil;
 
 	if ([UIStatusBar instancesRespondToSelector:@selector(setForegroundColor:)]) {
 		[UIApplication sharedApplication].statusBar.foregroundColor = nil;
@@ -77,16 +84,26 @@
 	_themeColor = color;
 	
 	UIWindow *keyWindow = nil;
-	NSArray *windows = [[UIApplication sharedApplication] windows];
-	for (UIWindow *window in windows) {
-		if (window.isKeyWindow) {
-			keyWindow = window;
-			break;
+	if (@available(iOS 15.0, *)) {
+		NSSet *scenes = [[UIApplication sharedApplication] connectedScenes];
+		for (UIScene *scene in scenes) {
+			if ([scene isKindOfClass:[UIWindowScene class]]) {
+				UIWindowScene *windowScene = (UIWindowScene *)scene;
+				keyWindow = windowScene.keyWindow;
+			}
+		}
+	} else {
+		NSArray *windows = [[UIApplication sharedApplication] windows];
+		for (UIWindow *window in windows) {
+			if (window.isKeyWindow) {
+				keyWindow = window;
+				break;
+			}
 		}
 	}
 
 	self.view.tintColor = color;
-	keyWindow.tintColor = color;
+	if (keyWindow != nil) keyWindow.tintColor = color;
 	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[self.class]].onTintColor = color;
 
 	self.navbarThemed = self.navbarThemed;
@@ -101,19 +118,39 @@
 	if (enabled) {
 		bar.barTintColor = self.settings[@"headerColor"] ?: self.themeColor;
 		bar.tintColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
+
 		if (@available(iOS 13.0, *)) {
 			if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
 				if (self.settings[@"darkHeaderColor"]) bar.barTintColor = self.settings[@"darkHeaderColor"];
 				if (self.settings[@"darkTextColor"]) bar.tintColor = self.settings[@"darkTextColor"];
 			}
+
+			if (self.savedStandardAppearance == nil) {
+				self.savedStandardAppearance = bar.standardAppearance;
+				self.savedScrollEdgeAppearance = bar.scrollEdgeAppearance;
+			}
+			UINavigationBarAppearance *appearance = [UINavigationBarAppearance new];
+			appearance.backgroundColor = self.settings[@"headerColor"] ?: self.themeColor;
+			appearance.shadowColor = [UIColor clearColor];
+			bar.scrollEdgeAppearance = appearance;
+			bar.standardAppearance = appearance;
+		} else {
+			bar.translucent = NO;
+			bar.shadowImage = [UIImage new];
 		}
-		bar.translucent = NO;
-		bar.shadowImage = [UIImage new];
 	} else {
 		bar.barTintColor = [[UINavigationBar appearance] barTintColor];
 		bar.tintColor = [[UINavigationBar appearance] tintColor];
-		bar.translucent = YES;
-		bar.shadowImage = [[UINavigationBar appearance] shadowImage];
+
+		if (@available(iOS 13.0, *)) {
+			if (self.savedStandardAppearance != nil) {
+				bar.standardAppearance = self.savedStandardAppearance;
+				bar.scrollEdgeAppearance = self.savedScrollEdgeAppearance;
+			}
+		} else {
+			bar.translucent = YES;
+			bar.shadowImage = [[UINavigationBar appearance] shadowImage];
+		}
 	}
 
 	[self layoutHeader];

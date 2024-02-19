@@ -22,6 +22,9 @@
 @property (nonatomic, retain) UIColor *themeColor;
 @property (nonatomic, assign) BOOL navbarThemed;
 
+@property (nonatomic, retain) UINavigationBarAppearance *savedStandardAppearance API_AVAILABLE(ios(13.0));
+@property (nonatomic, retain) UINavigationBarAppearance *savedScrollEdgeAppearance API_AVAILABLE(ios(13.0));
+
 - (void)layoutHeader;
 - (NSBundle *)resourceBundle;
 
