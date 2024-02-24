@@ -116,12 +116,14 @@
 	UINavigationBar *bar = self.navigationController.navigationController.navigationBar;
 
 	if (enabled) {
+		UIColor *headerColor = self.settings[@"headerColor"] ?: self.themeColor;
 		bar.barTintColor = self.settings[@"headerColor"] ?: self.themeColor;
 		bar.tintColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
 
 		if (@available(iOS 13.0, *)) {
 			if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
-				if (self.settings[@"darkHeaderColor"]) bar.barTintColor = self.settings[@"darkHeaderColor"];
+				if (self.settings[@"darkHeaderColor"]) headerColor = self.settings[@"darkHeaderColor"];
+				bar.barTintColor = headerColor;
 				if (self.settings[@"darkTextColor"]) bar.tintColor = self.settings[@"darkTextColor"];
 			}
 
@@ -130,7 +132,7 @@
 				self.savedScrollEdgeAppearance = bar.scrollEdgeAppearance;
 			}
 			UINavigationBarAppearance *appearance = [UINavigationBarAppearance new];
-			appearance.backgroundColor = self.settings[@"headerColor"] ?: self.themeColor;
+			appearance.backgroundColor = headerColor;
 			appearance.shadowColor = [UIColor clearColor];
 			bar.scrollEdgeAppearance = appearance;
 			bar.standardAppearance = appearance;
@@ -161,15 +163,25 @@
 	if (@available(iOS 13, *)) {
 		UINavigationBar *bar = self.navigationController.navigationController.navigationBar;
 		if (@available(iOS 13.0, *)) {
+			UIColor *headerColor;
 			if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
-				if (self.settings[@"darkHeaderColor"]) bar.barTintColor = self.settings[@"darkHeaderColor"];
+				headerColor = self.settings[@"darkHeaderColor"];
+				if (headerColor) {
+					bar.barTintColor = headerColor;
+					bar.standardAppearance.backgroundColor = headerColor;
+					bar.scrollEdgeAppearance.backgroundColor = headerColor;
+				}
 				if (self.settings[@"darkTextColor"]) bar.tintColor = self.settings[@"darkTextColor"];
 			} else {
-				bar.barTintColor = self.settings[@"headerColor"] ?: self.themeColor;
+				headerColor = self.settings[@"headerColor"] ?: self.themeColor;
+				bar.barTintColor = headerColor;
+				bar.standardAppearance.backgroundColor = headerColor;
+				bar.scrollEdgeAppearance.backgroundColor = headerColor;
 				bar.tintColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
 			}
 		} else {
-			bar.barTintColor = self.settings[@"headerColor"] ?: self.themeColor;
+			UIColor *headerColor = self.settings[@"headerColor"] ?: self.themeColor;
+			bar.barTintColor = headerColor;
 			bar.tintColor = self.settings[@"textColor"] ?: [UIColor whiteColor];
 		}
 	}
