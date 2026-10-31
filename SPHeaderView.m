@@ -71,8 +71,11 @@
 	return self;
 }
 
-- (void)setFrame:(CGRect)frame {
-	[super setFrame:frame];
+- (void)layoutSubviews {
+	[super layoutSubviews];
+
+	UIViewController *controller = [self _viewControllerForAncestor];
+	CGFloat navigationBarHeight = controller.navigationController.navigationController.navigationBar.bounds.size.height;
 
 	CGFloat statusBarHeight = 20;
 	if (@available(iOS 13.0, *)) {
@@ -81,13 +84,30 @@
 		statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
 	}
 
-	CGFloat offset = statusBarHeight + [self _viewControllerForAncestor].navigationController.navigationController.navigationBar.frame.size.height;
+	CGFloat offset = statusBarHeight + navigationBarHeight;
+	CGFloat width = self.bounds.size.width;
+	CGFloat contentHeight = self.contentView.bounds.size.height;
+	CGFloat y = (self.bounds.size.height - offset - contentHeight) / 2 + offset - 20;
 
-	self.contentView.frame = CGRectMake(self.contentView.frame.origin.x, (frame.size.height - offset)/2 - self.contentView.frame.size.height/2 + offset - 20, frame.size.width, self.contentView.frame.size.height);
+	self.contentView.frame = CGRectMake(0, y, width, contentHeight);
 
-	self.titleLabel.frame = CGRectMake(self.titleLabel.frame.origin.x, self.titleLabel.frame.origin.y, frame.size.width, self.titleLabel.frame.size.height);
+	CGRect titleFrame = self.titleLabel.frame;
+	titleFrame.size.width = width;
+	self.titleLabel.frame = titleFrame;
 
-	self.subtitleLabel.frame = CGRectMake(self.subtitleLabel.frame.origin.x, self.subtitleLabel.frame.origin.y, frame.size.width, self.subtitleLabel.frame.size.height);
+	CGRect subtitleFrame = self.subtitleLabel.frame;
+	subtitleFrame.size.width = width;
+	self.subtitleLabel.frame = subtitleFrame;
+}
+
+- (void)didMoveToWindow {
+	[super didMoveToWindow];
+	[self setNeedsLayout];
+}
+
+- (void)safeAreaInsetsDidChange {
+	[super safeAreaInsetsDidChange];
+	[self setNeedsLayout];
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)width {

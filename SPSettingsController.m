@@ -50,11 +50,6 @@
 	self.headerView.layer.zPosition = 1000;
 	[self.view addSubview:self.headerView];
 
-	// Update offset for header
-	UITableView *tableView = [self valueForKey:@"_table"];
-	CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
-	[tableView setContentOffset:CGPointMake(0, -contentHeight) animated: NO];
-
 	self.navbarThemed = YES;
 	self.iconView.alpha = 0;
 }
@@ -79,10 +74,24 @@
 	}
 }
 
+- (void)viewDidLayoutSubviews {
+	[super viewDidLayoutSubviews];
+
+	if (!self.initialHeaderOffsetApplied && self.view.window) {
+		self.initialHeaderOffsetApplied = YES;
+
+		UITableView *tableView = [self valueForKey:@"_table"];
+		CGPoint offset = CGPointMake(tableView.contentOffset.x, -tableView.adjustedContentInset.top);
+		[tableView setContentOffset:offset animated:NO];
+	}
+
+	[self layoutHeader];
+}
+
 // Set global tint color
 - (void)setThemeColor:(UIColor *)color {
 	_themeColor = color;
-	
+
 	UIWindow *keyWindow = nil;
 	if (@available(iOS 15.0, *)) {
 		NSSet *scenes = [[UIApplication sharedApplication] connectedScenes];
@@ -113,7 +122,11 @@
 - (void)setNavbarThemed:(BOOL)enabled {
 	_navbarThemed = enabled;
 
-	UINavigationBar *bar = self.navigationController.navigationController.navigationBar;
+	UINavigationController *navigationController = self.navigationController;
+	while (navigationController.navigationController) {
+		navigationController = navigationController.navigationController;
+	}
+	UINavigationBar *bar = navigationController.navigationBar;
 
 	if (enabled) {
 		UIColor *headerColor = self.settings[@"headerColor"] ?: self.themeColor;
@@ -132,6 +145,7 @@
 				self.savedScrollEdgeAppearance = bar.scrollEdgeAppearance;
 			}
 			UINavigationBarAppearance *appearance = [UINavigationBarAppearance new];
+			[appearance configureWithOpaqueBackground];
 			appearance.backgroundColor = headerColor;
 			appearance.shadowColor = [UIColor clearColor];
 			bar.scrollEdgeAppearance = appearance;
@@ -161,7 +175,11 @@
 // Header colors dark mode support
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
 	if (@available(iOS 13, *)) {
-		UINavigationBar *bar = self.navigationController.navigationController.navigationBar;
+		UINavigationController *navigationController = self.navigationController;
+		while (navigationController.navigationController) {
+			navigationController = navigationController.navigationController;
+		}
+		UINavigationBar *bar = navigationController.navigationBar;
 		if (@available(iOS 13.0, *)) {
 			UIColor *headerColor;
 			if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
@@ -198,8 +216,14 @@
 
 	CGFloat contentHeight = [self.headerView contentHeightForWidth:self.view.bounds.size.width];
 
-	CGFloat yPos = fmin(0, -tableView.contentOffset.y - 20) + 20;
-	CGFloat elasticHeight = -tableView.contentOffset.y - contentHeight - 20;
+	CGFloat statusBarHeight = 20;
+	if (@available(iOS 13.0, *)) {
+		statusBarHeight = self.view.window.windowScene.statusBarManager.statusBarFrame.size.height;
+	} else {
+		statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
+	}
+	CGFloat yPos = fmin(0, -tableView.contentOffset.y - statusBarHeight) + statusBarHeight;
+	CGFloat elasticHeight = -tableView.contentOffset.y - contentHeight - statusBarHeight;
 
 	if (elasticHeight < 0) {
 		yPos += elasticHeight;
@@ -213,7 +237,7 @@
 	if (@available(iOS 13.0, *)) {
 		tableView.automaticallyAdjustsScrollIndicatorInsets = NO;
 	}
-	tableView.scrollIndicatorInsets = UIEdgeInsetsMake(contentHeight + elasticHeight + 20, 0, 0, 0);
+	tableView.scrollIndicatorInsets = UIEdgeInsetsMake(contentHeight + elasticHeight + statusBarHeight, 0, 0, 0);
 
 	// Show header icon
 	CGFloat start = -60;
